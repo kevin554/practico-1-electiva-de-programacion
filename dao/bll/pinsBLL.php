@@ -4,14 +4,19 @@ class pinsBLL {
 
     private $tableName = "pins";
 
-    public function insert($id, $title, $image, $url, $boardFk) {
+    public function insert($title, $image, $url, $boardFk) {
         $objConexion = new Connection();
-        $objConexion->queryWithParams("insert into $this->tableName (id, title, image, url,  boardFk) values (:id, :title, :image, :url, :boardFk)", array(":id" => $id,":title" => $title,":image" => $image,":url" => $url,": boardFk" => $boardFk));
+        $objConexion->queryWithParams("insert into $this->tableName (title, image, url, boardFk) values (:title, :image, :url, :boardFk)", array(":title" => $title, ":image" => $image, ":url" => $url, ":boardFk" => $boardFk));
+
+        $stmt = $objConexion->query("select max(id) from pins");
+
+        $lastId = $stmt->fetchColumn();
+        return $lastId;
     }
 
     public function update($id, $title, $image, $url, $boardFk) {
         $objConexion = new Connection();
-        $objConexion->queryWithParams("update $this->tableName set id = :id, title = :title, image = :image, url = :url, boardFk = :boardFk where id = :id", array(":title" => $title,":image" => $image,":url" => $url,":boardFk" => $boardFk, ":id" => $id));
+        $objConexion->queryWithParams("update $this->tableName set title = :title, image = :image, url = :url, boardFk = :boardFk where id = :id", array(":title" => $title, ":image" => $image, ":url" => $url, ":boardFk" => $boardFk, ":id" => $id));
     }
 
     public function delete($id) {
@@ -36,6 +41,19 @@ class pinsBLL {
     public function selectAll() {
         $objConexion = new Connection();
         $res = $objConexion->query("select id, title, image, url, boardFk from $this->tableName");
+        $pinList = array();
+
+        while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+            $obj = $this->rowToDto($row);
+            $pinList[] = $obj;
+        }
+
+        return $pinList;
+    }
+
+    public function selectOfBoard($boardFk) {
+        $objConexion = new Connection();
+        $res = $objConexion->queryWithParams("select id, title, image, url, boardFk from $this->tableName where boardFk = :boardFk", array(":boardFk" => $boardFk));
         $pinList = array();
 
         while ($row = $res->fetch(PDO::FETCH_ASSOC)) {

@@ -1,6 +1,6 @@
 <?php
 
-class tablerosBLL {
+class boardsBLL {
 
     private $tableName = "boards";
 

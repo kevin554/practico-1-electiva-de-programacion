@@ -31,6 +31,9 @@ class Connection {
 
     function getLastInsertedId() {
         return $this->getConnection()->lastInsertId();
+//        $stmt = $this->getConnection()->query("SELECT max(id) from ");
+//        $lastId = $stmt->fetchColumn();
+//        return $lastId;
     }
 
 }
