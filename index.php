@@ -3,8 +3,10 @@
     <head>
         <meta charset="UTF-8">
         <title></title>
-        <script src="js/jquery-3.3.1.slim.min.js" type="text/javascript"></script>
         <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+        <script src="js/jquery-3.3.1.slim.min.js" type="text/javascript"></script>
+        <script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
+        <script src="js/bootstrap.min.js" type="text/javascript"></script>
         <link href="css/index.css" rel="stylesheet" type="text/css"/>
     </head>
     <body>
@@ -31,14 +33,31 @@
 
                     $generatedId = $pinBll->insert($title, $imageName, $url, $boardFk);
 
-                    echo $generatedId;
-                    $pinBll->update($generatedId, $title, $generatedId, $url, $boardFk);
+                    $pinBll->update($generatedId, $title, $generatedId.".".pathinfo($imageName, PATHINFO_EXTENSION), $url, $boardFk);
 
                     $tmp_name = $_FILES['file']['tmp_name']; /* hosted in xampp */
                     $local_image = "img/";
-                    move_uploaded_file($tmp_name, $local_image . $generatedId);
+                    move_uploaded_file($tmp_name, $local_image . $generatedId.".".pathinfo($imageName, PATHINFO_EXTENSION));
                 }
                 break;
+
+            case "delete":
+                if (isset($_REQUEST["id"])) {
+                    $id = $_REQUEST["id"];
+                    $pinBll->delete($id);
+                }
+
+                break;
+
+            case "search":
+                if (isset($_REQUEST["q"])) {
+                    $q = $_REQUEST["q"];
+                    $pinList = $pinBll->search($q);
+                }
+                break;
+        }
+        if ($task != 'search') {
+            $pinList = $pinBll->selectAll();
         }
         ?>
 
@@ -47,14 +66,16 @@
                 <img src="img/pinterest.png" width="30" height="30" alt="pinterest logo">
             </a>
 
-            <form class="form-inline w-100 order-2">
+            <form class="form-inline w-100 order-2" method="post" action="index.php">
                 <div class="input-group w-100">
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1" style="background: #efefef">
                             <img src="img/searcher.png" width="30" height="30" alt="pinterest logo">
                         </span>
                     </div>
-                    <input type="text" class="form-control border-left-0 font-weight-bold" style="background: #efefef" placeholder="Search" aria-label="Search" aria-describedby="basic-addon1">
+                    <input type="hidden" name="task" value="search"/>
+                    <input type="search" class="form-control border-left-0 font-weight-bold" style="background: #efefef" placeholder="Buscar" name="q" aria-label="Search" aria-describedby="basic-addon1">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
                 </div>
             </form>
 
@@ -87,22 +108,22 @@
                     ?>
                     <div class="col-sm">
                         <div class="pin">
-                            <img src="img/<?php echo $pin->getImage(); ?>" alt="image" class="rounded img-fluid" onclick="showPin(<?php echo "'".$pin->getUrl()."'"; ?>)"/>
+                            <img src="img/<?php echo $pin->getImage(); ?>" alt="image" class="rounded img-fluid" onclick="showPin(<?php echo "'" . $pin->getUrl() . "'"; ?>)"/>
                             <span class="clearfix"></span>
                             <b class="float-left"><?php echo $pin->getTitle(); ?></b>
-                            <p class="float-right">...</p>
                             <div class="dropdown float-right">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Dropdown button
+                                <button class="btn btn-light dropdown-toggle btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <a class="dropdown-item" href="#">Something else here</a>
+                                    <a class="dropdown-item" href="formNewPin.php?id=<?php echo $pin->getId(); ?>">Editar</a>
+                                    <form method="POST" action="index.php">
+                                        <input type="hidden" name="task" value="delete"/>
+                                        <input type="hidden" value="<?php echo $pin->getId(); ?>" name="id"/>
+                                        <input type="submit" class="dropdown-item" value="Eliminar"/>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                     <?php
                 }

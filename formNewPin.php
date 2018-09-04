@@ -20,7 +20,7 @@
         $pin = null;
 
         if (isset($_REQUEST["id"])) {
-            $id = $REQUEST["id"];
+            $id = $_REQUEST["id"];
             $pinBll = new pinsBLL();
             $pin = $pinBll->select($id);
         }
@@ -30,7 +30,6 @@
             <a class="navbar-brand order-1" href="#index.php">
                 <img src="img/pinterest.png" width="30" height="30" alt="pinterest logo">
             </a>
-
         </nav>
         <div class="container">
             <div class="col-md-6 offset-md-3">
@@ -82,13 +81,13 @@
 
                     <div class="form-group">
                         <label>Tablero:</label>
-                        <select class="form-control" name="board"  required="required">
+                        <select class="form-control" name="board" required="required">
                             <option value="">Seleccione el tablero</option>
                             <?php
                             $boardList = $boardBll->selectAll();
                             foreach ($boardList as $board) {
                                 ?>
-                                <option value="<?php echo $board->getId(); ?>"><?php echo $board->getName(); ?></option>
+                                <option value="<?php echo $board->getId(); ?>" <?php if ($pin != null && $pin->getBoardFk() == $board->getId()) { echo " selected "; } ?> ><?php echo $board->getName(); ?></option>
                                 <?php
                             }
                             ?>

@@ -64,6 +64,19 @@ class pinsBLL {
         return $pinList;
     }
 
+    public function search($value) {
+        $objConexion = new Connection();
+        $res = $objConexion->queryWithParams("select id, title, image, url, boardFk from $this->tableName where title like :value", array(":value" => "%".$value."%"));
+        $pinList = array();
+
+        while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+            $obj = $this->rowToDto($row);
+            $pinList[] = $obj;
+        }
+
+        return $pinList;
+    }
+
     public function rowToDto($row) {
         $obj = new pins();
         $obj->setId($row["id"]);
